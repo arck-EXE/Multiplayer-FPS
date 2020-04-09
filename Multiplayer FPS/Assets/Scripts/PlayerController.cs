@@ -55,9 +55,9 @@ public class PlayerController : MonoBehaviour
 
         float _xRot = Input.GetAxisRaw("Mouse Y");
 
-        Vector3 _cameraRotation = new Vector3(_xRot, 0f, 0f) * sensitivity;
+        float _cameraRotationX = _xRot * sensitivity;
 
-        motor.RotateCamera(_cameraRotation);
+        motor.RotateCamera(_cameraRotationX);
 
         Vector3 _thrusterForce = Vector3.zero;
         if(Input.GetButton("Jump"))
