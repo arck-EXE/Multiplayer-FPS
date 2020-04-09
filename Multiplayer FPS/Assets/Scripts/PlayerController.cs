@@ -4,19 +4,31 @@ using UnityEngine;
 
 
 [RequireComponent(typeof(PlayerMotor))]
+[RequireComponent(typeof(ConfigurableJoint))]
 public class PlayerController : MonoBehaviour
 {
     [SerializeField]
     private float speed = 5f;
     [SerializeField]
     private float sensitivity = 3f;
-    
+
+    [SerializeField]
+    private float thrusterForce = 1000f;
+
+    [Header("Spring Settings : ")]
+
+    [SerializeField]
+    private float jointSpring = 20f;
+    [SerializeField]
+    private float jointMaxForce = 40f;
 
     private PlayerMotor motor;
+    private ConfigurableJoint joint;
 
     private void Start()
     {
         motor = GetComponent<PlayerMotor>();
+        joint = GetComponent<ConfigurableJoint>();  
     }
 
     private void Update()
@@ -46,5 +58,28 @@ public class PlayerController : MonoBehaviour
         Vector3 _cameraRotation = new Vector3(_xRot, 0f, 0f) * sensitivity;
 
         motor.RotateCamera(_cameraRotation);
+
+        Vector3 _thrusterForce = Vector3.zero;
+        if(Input.GetButton("Jump"))
+        {
+            _thrusterForce = Vector3.up * thrusterForce;
+            SetJointSettings(0f);
+        }
+        else
+        {
+            SetJointSettings(jointSpring);
+        }
+
+        motor.ApplyThruster(_thrusterForce);
+
+    }
+
+    private void SetJointSettings(float _jointSpring)
+    {
+        joint.yDrive = new JointDrive
+        { 
+            positionSpring = _jointSpring, 
+            maximumForce = jointMaxForce
+        };
     }
 }
