@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-
+[RequireComponent(typeof(Animator))]
 [RequireComponent(typeof(PlayerMotor))]
 [RequireComponent(typeof(ConfigurableJoint))]
 public class PlayerController : MonoBehaviour
@@ -24,25 +24,29 @@ public class PlayerController : MonoBehaviour
 
     private PlayerMotor motor;
     private ConfigurableJoint joint;
+    private Animator animator;
 
     private void Start()
     {
         motor = GetComponent<PlayerMotor>();
-        joint = GetComponent<ConfigurableJoint>();  
+        joint = GetComponent<ConfigurableJoint>();
+        animator = GetComponent<Animator>();
     }
 
     private void Update()
     {
         //calculate Movement as vector
-        float _xMov = Input.GetAxisRaw("Horizontal");
-        float _zMov = Input.GetAxisRaw("Vertical");
+        float _xMov = Input.GetAxis("Horizontal");
+        float _zMov = Input.GetAxis("Vertical");
 
 
         Vector3 horizontalMove = transform.right * _xMov;
         Vector3 VerticalMove = transform.forward * _zMov;
 
         //final movement
-        Vector3 _Velocity = (horizontalMove + VerticalMove).normalized * speed;
+        Vector3 _Velocity = (horizontalMove + VerticalMove) * speed;
+
+        animator.SetFloat("Blend", _zMov);
 
         //applying movement
         motor.Move(_Velocity);
