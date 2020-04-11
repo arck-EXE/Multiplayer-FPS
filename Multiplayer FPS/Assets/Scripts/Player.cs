@@ -5,9 +5,11 @@ using UnityEngine.Networking;
 
 public class Player : NetworkBehaviour
 {
-
+    //variable that gets synced to the server [SyncVar]
     [SyncVar]
     private bool _isDead = false;
+
+    //using getter and setter to easily swap the bool values in the variable
     public bool isDead
     {
         get { return _isDead; }
@@ -17,14 +19,16 @@ public class Player : NetworkBehaviour
     [SerializeField]
     private int maxHealth = 100;
 
+    //current health gets synced with the server and the clients
     [SyncVar]
     private int currentHealth;
 
-
+    //variables to disable the components from the behaviour
     [SerializeField]
     private Behaviour[] disableOnDeath;
     private bool[] wasEnabled;
 
+    //called in the player setup script and distinguishes the host player from the clients
     public void Setup()
     {
 
@@ -38,6 +42,8 @@ public class Player : NetworkBehaviour
         SetDefaults();
     }
 
+
+    //called on the server then updates the clients
     [ClientRpc]
     public void RpcTakeDamage(int _amount)
     {
@@ -54,6 +60,7 @@ public class Player : NetworkBehaviour
         }
     }
 
+    //handles dying and respawning also disables the components and collider that can impact the game when a player dies
     private void Die()
     {
         isDead = true;
@@ -74,6 +81,8 @@ public class Player : NetworkBehaviour
         StartCoroutine(Respawn());
     }
 
+
+    //coroutine to respawn players
     private IEnumerator Respawn()
     {
         yield return new WaitForSeconds(GameManager.instance.matchSettings.respawnTime);
@@ -84,6 +93,7 @@ public class Player : NetworkBehaviour
         Debug.Log(transform.name + "respawned");
     }
 
+    //sets defaults like the enabled components and colliders...
     public void SetDefaults()
     {
         isDead = false;

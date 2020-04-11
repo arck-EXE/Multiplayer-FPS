@@ -4,14 +4,16 @@ using UnityEngine;
 using UnityEngine.Networking;
 
 public class PlayerShoot : NetworkBehaviour
-
 {
+    //constant and static variable to store the playerID
     private const string PLAYER_TAG = "Player";
 
+    //Weapon class which store info about the current weapon
     public PlayerWeapon weapon;
 
     [SerializeField]
     private Camera cam;
+    //layer mask to avoid the layers that player should not hit.
     [SerializeField]
     private LayerMask mask;
 
@@ -19,6 +21,7 @@ public class PlayerShoot : NetworkBehaviour
     {
         if(cam == null)
         {
+            //disables the camera when game starts
             Debug.LogError("No Camera Found : PlayerShoot!!");
             this.enabled = false;
         }
@@ -32,6 +35,8 @@ public class PlayerShoot : NetworkBehaviour
         }
     }
 
+
+    //callef on the client only
     [Client]
     void Shoot()
     {
@@ -45,11 +50,13 @@ public class PlayerShoot : NetworkBehaviour
         }
     }
 
+    //called on the server
     [Command]
     void CmdPlayerShot(string _ID, int _damage)
     {
         Debug.Log(_ID + " has been Shot.");
         Player _player = GameManager.GetPlayer(_ID);
+        //updates the client to assign the damage the player
         _player.RpcTakeDamage(_damage);
     }
 }
