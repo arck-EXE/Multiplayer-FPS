@@ -7,9 +7,15 @@ public class PlayerShoot : NetworkBehaviour
 {
     //constant and static variable to store the playerID
     private const string PLAYER_TAG = "Player";
+    [SerializeField]
+    private string weaponLayerName = "Weapon";
 
     //Weapon class which store info about the current weapon
-    public PlayerWeapon weapon;
+    [SerializeField]
+    private PlayerWeapon weapon;
+
+    [SerializeField]
+    private GameObject weaponGFX;
 
     [SerializeField]
     private Camera cam;
@@ -25,6 +31,8 @@ public class PlayerShoot : NetworkBehaviour
             Debug.LogError("No Camera Found : PlayerShoot!!");
             this.enabled = false;
         }
+
+        weaponGFX.layer = LayerMask.NameToLayer(weaponLayerName);
     }
 
     private void Update()
