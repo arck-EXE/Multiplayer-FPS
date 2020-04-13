@@ -3,25 +3,23 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
 
+[RequireComponent(typeof(WeaponManager))]
 public class PlayerShoot : NetworkBehaviour
 {
     //constant and static variable to store the playerID
     private const string PLAYER_TAG = "Player";
-    [SerializeField]
-    private string weaponLayerName = "Weapon";
 
     //Weapon class which store info about the current weapon
-    [SerializeField]
-    private PlayerWeapon weapon;
-
-    [SerializeField]
-    private GameObject weaponGFX;
+    private PlayerWeapon currentweapon;
 
     [SerializeField]
     private Camera cam;
+
     //layer mask to avoid the layers that player should not hit.
     [SerializeField]
     private LayerMask mask;
+
+    private WeaponManager weaponManager;
 
     private void Start()
     {
@@ -32,14 +30,30 @@ public class PlayerShoot : NetworkBehaviour
             this.enabled = false;
         }
 
-        weaponGFX.layer = LayerMask.NameToLayer(weaponLayerName);
+        weaponManager = GetComponent<WeaponManager>(); 
     }
 
     private void Update()
     {
-        if(Input.GetButtonDown("Fire1"))
+        currentweapon = weaponManager.GetCurrentWeapon();
+
+        if (currentweapon.firerate <= 0)
         {
-            Shoot();
+            if (Input.GetButtonDown("Fire1"))
+            {
+                Shoot();
+            }
+        }
+        else
+        {
+            if (Input.GetButtonDown("Fire1"))
+            {
+                InvokeRepeating("Shoot", 0f, 1f / currentweapon.firerate);
+            }
+            else if (Input.GetButtonUp("Fire1"))
+            {
+                CancelInvoke("Shoot");
+            }
         }
     }
 
@@ -48,12 +62,14 @@ public class PlayerShoot : NetworkBehaviour
     [Client]
     void Shoot()
     {
+        Debug.Log("Shoot");
+
         RaycastHit _hit;
-        if(Physics.Raycast(cam.transform.position, cam.transform.forward, out _hit, weapon.range, mask))
+        if(Physics.Raycast(cam.transform.position, cam.transform.forward, out _hit, currentweapon.range, mask))
         {
             if(_hit.collider.tag == PLAYER_TAG)
             {
-                CmdPlayerShot(_hit.collider.name, weapon.damage);
+                CmdPlayerShot(_hit.collider.name, currentweapon.damage);
             }
         }
     }
