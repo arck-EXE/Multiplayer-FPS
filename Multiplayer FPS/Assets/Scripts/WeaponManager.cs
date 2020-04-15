@@ -16,6 +16,8 @@ public class WeaponManager : NetworkBehaviour
 
     private PlayerWeapon currentweapon;
 
+    private WeaponGraphics currentGraphics; 
+
     private void Start()
     {
         EqiupWeapon(primaryweapon);
@@ -26,6 +28,11 @@ public class WeaponManager : NetworkBehaviour
         return currentweapon;
     }
 
+    public WeaponGraphics GetCurrentGraphics()
+    {
+        return currentGraphics;
+    }
+
     void EqiupWeapon(PlayerWeapon _weapon)
     {
         currentweapon = _weapon;
@@ -33,7 +40,11 @@ public class WeaponManager : NetworkBehaviour
         GameObject _weaponInst = Instantiate(_weapon.Graphics, weaponHolder.position, weaponHolder.rotation);
         _weaponInst.transform.SetParent(weaponHolder);
 
+        currentGraphics = _weaponInst.GetComponent<WeaponGraphics>();
+        if (currentGraphics == null)
+            Debug.LogError("No weapon Graphics on " + _weaponInst.name);
+
         if (isLocalPlayer)
-            _weaponInst.layer = LayerMask.NameToLayer(weaponLayerName);
+            Util.SetLayerRecursively(_weaponInst, LayerMask.NameToLayer(weaponLayerName));
     }
 }

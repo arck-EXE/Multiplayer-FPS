@@ -23,14 +23,14 @@ public class PlayerShoot : NetworkBehaviour
 
     private void Start()
     {
-        if(cam == null)
+        if (cam == null)
         {
             //disables the camera when game starts
             Debug.LogError("No Camera Found : PlayerShoot!!");
             this.enabled = false;
         }
 
-        weaponManager = GetComponent<WeaponManager>(); 
+        weaponManager = GetComponent<WeaponManager>();
     }
 
     private void Update()
@@ -58,11 +58,29 @@ public class PlayerShoot : NetworkBehaviour
     }
 
 
+    [Command]
+    void CmdOnShoot()
+    {
+        RpcDoShootEffects();
+    }
+
+    [ClientRpc]
+    void RpcDoShootEffects()
+    {
+        weaponManager.GetCurrentGraphics().muzzleFlash.Play();
+    }
+
     //callef on the client only
     [Client]
     void Shoot()
     {
-        Debug.Log("Shoot");
+
+        if (!isLocalPlayer)
+        {
+            return;
+        }
+
+        CmdOnShoot();
 
         RaycastHit _hit;
         if(Physics.Raycast(cam.transform.position, cam.transform.forward, out _hit, currentweapon.range, mask))
